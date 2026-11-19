@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bubbly Soft Blue Notes 🫧🩵</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ice-1: #e4f3ff;
+            --ice-2: #cfeaff;
+            --ice-3: #f4faff;
+            --bubble-rim: rgba(255, 255, 255, 0.95);
+            --bubble-tint: rgba(138, 199, 255, 0.34);
+            --blue-accent: #56a5eb;
+            --blue-deep: #25598a;
+            --ink-soft: #4e7091;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            background: radial-gradient(circle at 20% 15%, var(--ice-3) 0%, var(--ice-1) 45%, var(--ice-2) 100%);
+            color: var(--blue-deep);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Dense & Bouncy Bubble Field */
+        .bubble-field {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .soap-bubble {
+            position: absolute;
+            bottom: -110px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 28% 26%, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.45) 18%, var(--bubble-tint) 65%, rgba(114, 184, 247, 0.45) 100%);
+            border: 1.5px solid var(--bubble-rim);
+            box-shadow:
+                inset -6px -8px 14px rgba(105, 176, 242, 0.28),
+                inset 5px 5px 10px rgba(255, 255, 255, 0.85),
+                0 8px 20px rgba(86, 165, 235, 0.14);
+            animation: riseAndSway linear infinite, squashWobble 3.4s ease-in-out infinite;
+        }
+
+        @keyframes riseAndSway {
+            0% {
+                transform: translateY(0) translateX(0px);
+                opacity: 0;
+            }
+            12% { opacity: 0.92; }
+            50% {
+                transform: translateY(-56vh) translateX(var(--sway, 26px));
+            }
+            88% { opacity: 0.92; }
+            100% {
+                transform: translateY(-116vh) translateX(0px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes squashWobble {
+            0%, 100% { border-radius: 48% 52% 50% 50% / 52% 48% 52% 48%; }
+            50% { border-radius: 53% 47% 48% 52% / 47% 53% 47% 53%; }
+        }
+
+        /* Interactive Tappable Mini Bubbles on Background */
+        .tap-bubble {
+            position: fixed;
+            pointer-events: auto;
+            cursor: pointer;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 28%, #ffffff 0%, rgba(255, 255, 255, 0.5) 22%, rgba(132, 196, 255, 0.35) 75%, rgba(102, 177, 245, 0.55) 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.95);
+            box-shadow: inset -4px -5px 10px rgba(96, 170, 238, 0.25), 0 6px 14px rgba(86, 165, 235, 0.15);
+            z-index: 2;
+            animation: floatIdle 4s ease-in-out infinite;
+            transition: transform 0.2s ease, opacity 0.25s ease;
+        }
+
+        .tap-bubble:hover {
+            transform: scale(1.15);
+        }
+
+        @keyframes floatIdle {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-14px) scale(1.05); }
+        }
+
+        /* Main Bubbly Deck */
+        .bubbly-card {
+            position: relative;
+            z-index: 5;
+            width: 91%;
+            max-width: 415px;
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 2.5px solid rgba(255, 255, 255, 0.96);
+            border-radius: 38px;
+            padding: 25px 22px 22px;
+            box-shadow:
+                0 22px 55px rgba(59, 130, 196, 0.16),
+                inset 0 0 24px rgba(255, 255, 255, 0.85);
+            animation: cardBreath 5s ease-in-out infinite;
+        }
+
+        @keyframes cardBreath {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Bubble Dots Progress */
+        .bubble-progress {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .b-dot {
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: #d2eaff;
+            border: 1.5px solid #ffffff;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .b-dot.active {
+            width: 30px;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #7ec2ff, #4c9ee6);
+            box-shadow: 0 4px 12px rgba(76, 158, 230, 0.45);
+        }
+
+        .b-dot.done {
+            background: #9fd1ff;
+        }
+
+        /* Slide Stage with Bouncy Pop */
+        .stage-area {
+            min-height: 368px;
+            display: flex;
+            align-items: center;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            animation: bouncyEnter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes bouncyEnter {
+            0% {
+                opacity: 0;
+                transform: scale(0.9) translateY(18px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .top-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .bubble-badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 28%, #ffffff 0%, #e5f3ff 55%, #b9deff 100%);
+            border: 2px solid #ffffff;
+            box-shadow: inset -4px -5px 10px rgba(96, 170, 238, 0.25), 0 8px 18px rgba(86, 165, 235, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+            animation: bobBubble 2.8s ease-in-out infinite;
+        }
+
+        @keyframes bobBubble {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-7px) scale(1.06); }
+        }
+
+        .title-group {
+            text-align: left;
+        }
+
+        .soft-tag {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--blue-accent);
+            background: #e9f5ff;
+            padding: 3px 10px;
+            border-radius: 99px;
+            margin-bottom: 4px;
+        }
+
+        h2 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 22px;
+            color: var(--blue-deep);
+            line-height: 1.2;
+        }
+
+        /* Bouncy Bubble Bullet List */
+        .bubble-points {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .bubble-points li {
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(232, 246, 255, 0.85));
+            border: 1.5px solid #ffffff;
+            border-radius: 22px;
+            padding: 12px 15px 12px 38px;
+            font-size: 13.5px;
+            line-height: 1.52;
+            color: var(--blue-deep);
+            box-shadow: 0 6px 16px rgba(86, 165, 235, 0.1);
+            opacity: 0;
+            transform: scale(0.86) translateY(12px);
+            animation: springPoint 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transition: transform 0.2s ease;
+        }
+
+        .bubble-points li:hover {
+            transform: scale(1.02) !important;
+        }
+
+        .bubble-points li::before {
+            content: "🫧";
+            position: absolute;
+            left: 12px;
+            top: 10px;
+            font-size: 16px;
+        }
+
+        .slide.active .bubble-points li:nth-child(1) { animation-delay: 0.1s; }
+        .slide.active .bubble-points li:nth-child(2) { animation-delay: 0.22s; }
+        .slide.active .bubble-points li:nth-child(3) { animation-delay: 0.34s; }
+
+        @keyframes springPoint {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* Slide 5 Big Bouncy Bubble Button */
+        .finale-zone {
+            text-align: center;
+        }
+
+        .big-bubble-btn {
+            margin: 14px auto 10px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 2.5px solid #ffffff;
+            background: radial-gradient(circle at 30% 25%, #ffffff 0%, #d4ecff 45%, #7ec2ff 100%);
+            box-shadow:
+                inset -8px -10px 18px rgba(56, 134, 206, 0.32),
+                inset 6px 6px 14px rgba(255, 255, 255, 0.9),
+                0 14px 30px rgba(86, 165, 235, 0.35);
+            color: var(--blue-deep);
+            font-family: 'Fredoka', sans-serif;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            animation: bigBubbleFloat 2.5s ease-in-out infinite;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .big-bubble-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .big-bubble-btn:active {
+            transform: scale(0.88);
+        }
+
+        @keyframes bigBubbleFloat {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+                border-radius: 49% 51% 48% 52% / 51% 49% 51% 49%;
+            }
+            50% {
+                transform: translateY(-8px) scale(1.04);
+                border-radius: 52% 48% 51% 49% / 48% 52% 48% 52%;
+            }
+        }
+
+        .big-bubble-btn .bb-emoji {
+            font-size: 34px;
+        }
+
+        .big-bubble-btn .bb-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+        }
+
+        /* Revealed Points Box */
+        .pop-result-box {
+            display: none;
+            margin-top: 12px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), #e6f4ff);
+            border: 2px solid #ffffff;
+            border-radius: 24px;
+            padding: 15px;
+            text-align: left;
+            box-shadow: 0 12px 28px rgba(86, 165, 235, 0.2);
+            animation: resultBounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .pop-result-box.show {
+            display: block;
+        }
+
+        @keyframes resultBounce {
+            0% { opacity: 0; transform: scale(0.8) translateY(14px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .pop-result-box ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pop-result-box li {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--blue-deep);
+            padding-left: 22px;
+            position: relative;
+        }
+
+        .pop-result-box li::before {
+            content: "🫧";
+            position: absolute;
+            left: 0;
+            top: -1px;
+            font-size: 13px;
+        }
+
+        /* Footer */
+        .foot-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 13px;
+            border-top: 1.5px solid rgba(159, 209, 255, 0.45);
+        }
+
+        .soft-pill-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--blue-deep);
+            border: 1.5px solid #cbe7ff;
+            padding: 9px 17px;
+            border-radius: 99px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .soft-pill-btn:hover:not(:disabled) {
+            background: #6eb7f5;
+            color: #ffffff;
+            border-color: #6eb7f5;
+            transform: translateY(-2px);
+        }
+
+        .soft-pill-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .page-num {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 13px;
+            color: var(--ink-soft);
+        }
+
+        /* Popped Bubbles Burst */
+        .mini-pop {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, rgba(138, 199, 255, 0.55));
+            border: 1.5px solid #ffffff;
+            pointer-events: none;
+            z-index: 98;
+            animation: bubbleShoot cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes bubbleShoot {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(0.4);
+            }
+            85% { opacity: 0.95; }
+            100% {
+                opacity: 0;
+                transform: translate(var(--bx), var(--by)) scale(1.25);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Rising Soft Bubbles -->
+    <div class="bubble-field" id="bubbleField"></div>
+
+    <div class="bubbly-card">
+        <!-- 5 Bubble Dots -->
+        <div class="bubble-progress" id="bubbleProgress">
+            <div class="b-dot active" onclick="pickSlide(0)"></div>
+            <div class="b-dot" onclick="pickSlide(1)"></div>
+            <div class="b-dot" onclick="pickSlide(2)"></div>
+            <div class="b-dot" onclick="pickSlide(3)"></div>
+            <div class="b-dot" onclick="pickSlide(4)"></div>
+        </div>
+
+        <div class="stage-area">
+            <!-- SLIDE 1 -->
+            <div class="slide active">
+                <div class="top-row">
+                    <div class="bubble-badge">🫧</div>
+                    <div class="title-group">
+                        <span class="soft-tag">Slide 01 · Bubble Note</span>
+                        <h2>Float Light Today</h2>
+                    </div>
+                </div>
+                <ul class="bubble-points">
+                    <li>Halo moots! *Take a little breather* kalau kepala lagi penuh.</li>
+                    <li>Nggak usah buru-buru, *let your thoughts float gently* kayak gelembung.</li>
+                    <li>Hari ini boleh banget dijalani *one small step at a time*.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 2 -->
+            <div class="slide">
+                <div class="top-row">
+                    <div class="bubble-badge">🩵</div>
+                    <div class="title-group">
+                        <span class="soft-tag">Slide 02 · Soft Pace</span>
+                        <h2>Rest Is Allowed</h2>
+                    </div>
+                </div>
+                <ul class="bubble-points">
+                    <li>*It’s okay to slow down* pas energi kamu lagi menipis.</li>
+                    <li>Capek bukan berarti gagal, *it just means you’ve been trying*.</li>
+                    <li>Kasih ruang buat diri sendiri biar bisa napas lega lagi.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 3 -->
+            <div class="slide">
+                <div class="top-row">
+                    <div class="bubble-badge">🌊</div>
+                    <div class="title-group">
+                        <span class="soft-tag">Slide 03 · Calm Energy</span>
+                        <h2>Keep Your Sparkle</h2>
+                    </div>
+                </div>
+                <ul class="bubble-points">
+                    <li>*Little wins still count*, sekecil apa pun kelihatannya.</li>
+                    <li>*Don’t be too hard on yourself*—you’re doing your best.</li>
+                    <li>Simpan energi baik buat hal-hal yang beneran bikin kamu *happy*.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 4 -->
+            <div class="slide">
+                <div class="top-row">
+                    <div class="bubble-badge">☁️</div>
+                    <div class="title-group">
+                        <span class="soft-tag">Slide 04 · Good Vibes</span>
+                        <h2>Clear Skies Ahead</h2>
+                    </div>
+                </div>
+                <ul class="bubble-points">
+                    <li>*Better days are coming*, pelan-pelan tapi pasti.</li>
+                    <li>*So proud of you* buat tiap hari yang udah kamu lewatin.</li>
+                    <li>Semoga hari-hari kamu ke depan makin *light, calm, and lucky*.</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 5 (Interactive Big Bubble) -->
+            <div class="slide">
+                <div class="finale-zone">
+                    <span class="soft-tag">Slide 05 · Pop The Bubble</span>
+                    <h2 style="margin-top: 4px;">Tap The Big Bubble!</h2>
+                    <p style="font-size: 13px; color: var(--ink-soft); margin-top: 5px;" id="bubbleTip">
+                        Pencet gelembung biru di bawah biar pecah jadi poin penyemangat! 👇
+                    </p>
+
+                    <button class="big-bubble-btn" id="bigBubbleBtn" onclick="popBigBubble()">
+                        <span class="bb-emoji" id="bbEmoji">🫧</span>
+                        <span class="bb-label" id="bbLabel">Tap Bubble</span>
+                    </button>
+
+                    <div class="pop-result-box" id="popResultBox">
+                        <ul id="popResultList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="foot-nav">
+            <button class="soft-pill-btn" id="prevSoft" onclick="stepDeck(-1)" disabled>← Back</button>
+            <span class="page-num" id="pageNum">1 / 5</span>
+            <button class="soft-pill-btn" id="nextSoft" onclick="stepDeck(1)">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. Spawn Lots of Rising & Swaying Soap Bubbles
+        const bubbleField = document.getElementById('bubbleField');
+
+        for (let i = 0; i < 26; i++) {
+            const b = document.createElement('div');
+            b.className = 'soap-bubble';
+            const size = Math.random() * 58 + 16;
+            b.style.width = `${size}px`;
+            b.style.height = `${size}px`;
+            b.style.left = `${Math.random() * 100}%`;
+            b.style.setProperty('--sway', `${(Math.random() > 0.5 ? 1 : -1) * (Math.random() * 36 + 14)}px`);
+            b.style.animationDuration = `${Math.random() * 8 + 7}s, ${Math.random() * 2 + 2.5}s`;
+            b.style.animationDelay = `${Math.random() * -12}s, ${Math.random() * -3}s`;
+            bubbleField.appendChild(b);
+        }
+
+        // 2. Spawn Interactive Tappable Bubbles Around Screen (Moots can pop them!)
+        const tapPositions = [
+            { top: '10%', left: '8%', size: 42 },
+            { top: '18%', right: '9%', size: 34 },
+            { bottom: '14%', left: '7%', size: 38 },
+            { bottom: '20%', right: '8%', size: 46 }
+        ];
+
+        tapPositions.forEach((pos, idx) => {
+            const tb = document.createElement('div');
+            tb.className = 'tap-bubble';
+            tb.style.width = `${pos.size}px`;
+            tb.style.height = `${pos.size}px`;
+            if (pos.top) tb.style.top = pos.top;
+            if (pos.bottom) tb.style.bottom = pos.bottom;
+            if (pos.left) tb.style.left = pos.left;
+            if (pos.right) tb.style.right = pos.right;
+            tb.style.animationDelay = `${idx * -0.9}s`;
+
+            tb.addEventListener('click', (e) => {
+                spawnBubbleBurst(e.clientX, e.clientY, 10);
+                tb.style.transform = 'scale(0)';
+                tb.style.opacity = '0';
+                setTimeout(() => {
+                    tb.style.transform = 'scale(1)';
+                    tb.style.opacity = '1';
+                }, 900);
+            });
+
+            document.body.appendChild(tb);
+        });
+
+        // 3. Slide Controls
+        let idx = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.b-dot');
+        const prevSoft = document.getElementById('prevSoft');
+        const nextSoft = document.getElementById('nextSoft');
+        const pageNum = document.getElementById('pageNum');
+
+        function updateDeck() {
+            slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+            dots.forEach((d, i) => {
+                d.classList.remove('active', 'done');
+                if (i === idx) d.classList.add('active');
+                else if (i < idx) d.classList.add('done');
+            });
+
+            prevSoft.disabled = idx === 0;
+            nextSoft.disabled = idx === slides.length - 1;
+            nextSoft.style.visibility = idx === slides.length - 1 ? 'hidden' : 'visible';
+            pageNum.innerText = `${idx + 1} / 5`;
+        }
+
+        function stepDeck(step) {
+            const next = idx + step;
+            if (next >= 0 && next < slides.length) {
+                idx = next;
+                updateDeck();
+            }
+        }
+
+        function pickSlide(target) {
+            idx = target;
+            updateDeck();
+        }
+
+        // 4. Pop Big Bubble Function
+        function spawnBubbleBurst(cx, cy, count = 28) {
+            for (let i = 0; i < count; i++) {
+                const mp = document.createElement('div');
+                mp.className = 'mini-pop';
+                const sz = Math.random() * 18 + 10;
+                mp.style.width = `${sz}px`;
+                mp.style.height = `${sz}px`;
+                mp.style.left = `${cx - sz / 2}px`;
+                mp.style.top = `${cy - sz / 2}px`;
+
+                const ang = Math.random() * Math.PI * 2;
+                const dist = Math.random() * 190 + 55;
+                mp.style.setProperty('--bx', `${Math.cos(ang) * dist}px`);
+                mp.style.setProperty('--by', `${Math.sin(ang) * dist}px`);
+                mp.style.animationDuration = `${Math.random() * 0.65 + 0.75}s`;
+
+                document.body.appendChild(mp);
+                setTimeout(() => mp.remove(), 1450);
+            }
+        }
+
+        const bubblePointSets = [
+            [
+                "Minum segelas air dingin & tarik napas dalam.",
+                "Hal baik lagi otw ke kamu—stay soft & hopeful!",
+                "You’re doing great, even on quiet days."
+            ],
+            [
+                "Lepasin beban pikiran yang nggak perlu hari ini.",
+                "Satu langkah kecil tetap dihitung sebagai *progress*.",
+                "Sending bubbly good energy straight to you!"
+            ],
+            [
+                "Boleh banget istirahat sebentar sebelum lanjut lagi.",
+                "Semoga ada kabar manis atau hal seru hari ini.",
+                "Keep shining gently in your own way!"
+            ]
+        ];
+
+        function popBigBubble() {
+            const btn = document.getElementById('bigBubbleBtn');
+            const bbEmoji = document.getElementById('bbEmoji');
+            const bbLabel = document.getElementById('bbLabel');
+            const bubbleTip = document.getElementById('bubbleTip');
+            const resultBox = document.getElementById('popResultBox');
+            const resultList = document.getElementById('popResultList');
+
+            const chosen = bubblePointSets[Math.floor(Math.random() * bubblePointSets.length)];
+            resultList.innerHTML = chosen.map(txt => `<li>${txt}</li>`).join('');
+
+            resultBox.classList.remove('show');
+            void resultBox.offsetWidth;
+            resultBox.classList.add('show');
+
+            bbEmoji.innerText = '🩵';
+            bbLabel.innerText = 'Pop Again';
+            bubbleTip.innerText = 'Pencet gelembungnya lagi buat dapet poin beda! 🫧';
+
+            const rect = btn.getBoundingClientRect();
+            spawnBubbleBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 34);
+        }
+    </script>
+</body>
+</html>
